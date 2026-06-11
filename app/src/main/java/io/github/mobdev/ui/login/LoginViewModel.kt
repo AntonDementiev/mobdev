@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.mobdev.data.ChatRepository
 import io.github.mobdev.data.TokenStorage
+import io.github.mobdev.data.db.AppDatabase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,7 +22,7 @@ sealed class LoginUiState {
 class LoginViewModel(app: Application) : AndroidViewModel(app) {
 
     val tokenStorage = TokenStorage(app)
-    private val repo = ChatRepository()
+    private val repo = ChatRepository(AppDatabase.getInstance(app))
 
     private val _uiState = MutableStateFlow<LoginUiState>(LoginUiState.Idle)
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()

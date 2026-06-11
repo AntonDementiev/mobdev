@@ -199,5 +199,13 @@ private fun MessageItem(
                 else -> Spacer(modifier = Modifier.height(0.dp))
             }
         }
+        if (message.pending) {
+            Text(
+                text = stringResource(R.string.pending_message),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.outline,
+                modifier = Modifier.padding(top = 2.dp),
+            )
+        }
     }
 }

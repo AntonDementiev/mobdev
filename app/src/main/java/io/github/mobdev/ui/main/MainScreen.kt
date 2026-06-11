@@ -3,9 +3,11 @@ package io.github.mobdev.ui.main
 import android.content.res.Configuration
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
@@ -16,7 +18,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -52,6 +56,7 @@ fun MainScreen(
     val isLoadingMore by viewModel.isLoadingMore.collectAsState()
     val hasMore by viewModel.hasMoreMessages.collectAsState()
     val event by viewModel.event.collectAsState()
+    val isOnline by viewModel.isOnline.collectAsState()
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
@@ -113,10 +118,14 @@ fun MainScreen(
                 )
             },
         ) { paddingValues ->
-            Row(
+            Column(
                 modifier = Modifier
                     .padding(paddingValues)
                     .fillMaxSize(),
+            ) {
+            OfflineBanner(visible = !isOnline)
+            Row(
+                modifier = Modifier.fillMaxSize(),
             ) {
                 ChannelListPane(
                     channels = channels,
@@ -144,6 +153,7 @@ fun MainScreen(
                     ) { Text(stringResource(R.string.select_chat)) }
                 }
             }
+            }
         }
     } else if (showChatInline) {
         // ── PORTRAIT: chat screen ───────────────────────────────────
@@ -165,17 +175,24 @@ fun MainScreen(
                 )
             },
         ) { paddingValues ->
-            ChatPane(
-                messages = messages,
-                isLoading = isLoadingMessages,
-                isLoadingMore = isLoadingMore,
-                hasMore = hasMore,
-                currentUsername = viewModel.tokenStorage.savedUsername,
-                onLoadMore = { viewModel.loadMoreMessages() },
-                onSend = { viewModel.sendMessage(it) },
-                onImageClick = onImageClick,
-                modifier = Modifier.padding(paddingValues),
-            )
+            Column(
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .fillMaxSize(),
+            ) {
+                OfflineBanner(visible = !isOnline)
+                ChatPane(
+                    messages = messages,
+                    isLoading = isLoadingMessages,
+                    isLoadingMore = isLoadingMore,
+                    hasMore = hasMore,
+                    currentUsername = viewModel.tokenStorage.savedUsername,
+                    onLoadMore = { viewModel.loadMoreMessages() },
+                    onSend = { viewModel.sendMessage(it) },
+                    onImageClick = onImageClick,
+                    modifier = Modifier.weight(1f),
+                )
+            }
         }
     } else {
         // ── PORTRAIT: channel list screen ────────────────────────────
@@ -194,15 +211,38 @@ fun MainScreen(
                 )
             },
         ) { paddingValues ->
-            ChannelListPane(
-                channels = channels,
-                selectedChannel = null,
-                onChannelClick = { channel ->
-                    viewModel.selectChannel(channel)
-                    onNavigateToChat(channel)
-                },
-                modifier = Modifier.padding(paddingValues),
-            )
+            Column(
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .fillMaxSize(),
+            ) {
+                OfflineBanner(visible = !isOnline)
+                ChannelListPane(
+                    channels = channels,
+                    selectedChannel = null,
+                    onChannelClick = { channel ->
+                        viewModel.selectChannel(channel)
+                        onNavigateToChat(channel)
+                    },
+                    modifier = Modifier.weight(1f),
+                )
+            }
         }
+    }
+}
+
+@Composable
+private fun OfflineBanner(visible: Boolean) {
+    if (!visible) return
+    Surface(
+        color = MaterialTheme.colorScheme.errorContainer,
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Text(
+            text = stringResource(R.string.offline_banner),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onErrorContainer,
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp),
+        )
     }
 }

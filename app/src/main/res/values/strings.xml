@@ -22,4 +22,6 @@
     <string name="image_message">Изображение</string>
     <string name="no_messages">Нет сообщений</string>
     <string name="field_required">Заполните поле</string>
+    <string name="offline_banner">Нет подключения к сети. Показаны сохранённые данные.</string>
+    <string name="pending_message">Не отправлено, ожидает сети…</string>
 </resources>

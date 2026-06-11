@@ -19,6 +19,8 @@ data class Message(
     val to: String? = "1@channel",
     val data: MessageData,
     val time: String? = null,
+    /** True for messages queued locally that haven't been sent to the server yet. */
+    val pending: Boolean = false,
 )
 
 data class MessageData(
